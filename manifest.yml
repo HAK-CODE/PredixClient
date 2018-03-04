@@ -1,0 +1,7 @@
+---
+applications:
+- name: Reon-client
+  memory: 512MB
+  disk_quota: 512MB
+  buildpack: python_buildpack
+  command: python app.py
