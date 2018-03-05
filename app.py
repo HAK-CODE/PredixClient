@@ -11,7 +11,7 @@ sys.path.append("Assets")
 sys.path.append("Queries")
 import Reon as reonService
 import Assets as assets
-
+import _connect as con
 app = Flask(__name__)
 CORS(app)
 port = int(os.getenv("PORT", 8000))
