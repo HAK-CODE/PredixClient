@@ -71,10 +71,8 @@ def get_aggregated_month(tag_id, get_time):
     dframe = load_data(tag_id)
 
     df1 = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
-    print(df1)
     monthDiff = calendar.monthrange(df1.year, df1.month)
     df1 = time_tango(str(df1.year) + "-" + str(df1.month) + "-" + "01")
-    print(df1)
     for k in range(monthDiff[0], 7):
         df1 += datetime.timedelta(days=1)
 
@@ -188,34 +186,16 @@ def get_query_time_bound_data(tag_id):
 
 
 @cached(cache)
-# def load_data(tag_id):
-#     print('inloaddata')
-#     alldata = json.loads(get_query_time_bound_data(tag_id))
-#     datelist = []
-#     valuelist = []
-#     for i in range(len(alldata['tags'][0]['results'][0]['values'])):
-#         datelist.append(str(datetime.datetime.
-#                             fromtimestamp(alldata['tags'][0]['results'][0]['values'][i][0] / 1000).
-#                             strftime('%Y-%m-%d')))
-#         valuelist.append(alldata['tags'][0]['results'][0]['values'][i][1])
-#     dframe = pd.DataFrame(columns=['Date', 'Values'])
-#     dframe['Date'] = pd.to_datetime(datelist)
-#     dframe['Values'] = valuelist
-#     return dframe
 def load_data(tag_id):
     alldata = json.loads(get_query_time_bound_data(tag_id))
-    new_time = []
     datelist = []
     valuelist = []
     for i in range(len(alldata['tags'][0]['results'][0]['values'])):
         datelist.append(str(datetime.datetime.fromtimestamp(alldata['tags'][0]['results'][0]['values'][i][0]/1000).strftime('%Y-%m-%d')))
         valuelist.append(alldata['tags'][0]['results'][0]['values'][i][1])
 
-    columns = ['Date', 'Values']
-    dframe = pd.DataFrame(columns = columns)
+    dframe = pd.DataFrame(columns=['Date', 'Values'])
     dframe['Date'] = datelist
-    dframe['Date'] = pd.to_datetime(dframe['Date'])
-    dframe['Values'] = valuelist 
-    dframe['Date'] = pd.to_datetime(dframe['Date'])
-    dframe['Date'] = dframe['Date'].dt.date 
+    dframe['Date'] = pd.to_datetime(dframe['Date']).dt.date
+    dframe['Values'] = valuelist
     return dframe
