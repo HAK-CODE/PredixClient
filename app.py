@@ -53,6 +53,13 @@ def day_returns():
     abort(make_response(jsonify(Auth_Token_Expired), 401))
 
 
+@app.route("/api/return_weeks")
+def week_returns():
+    if reonService.verify_auth_token(request.args.get('tok')):
+        return reonService.get_return_weeks(request.args.get('t'), request.args.get('time'))
+    abort(make_response(jsonify(Auth_Token_Expired), 401))
+
+
 @app.route("/api/aggregated_month")
 def get_aggregated_month():
     if reonService.verify_auth_token(request.args.get('tok')):

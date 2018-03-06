@@ -55,6 +55,18 @@ def get_return_days(tag_id, get_time):
         resList.append([res['response']['results'][i][0], k])
     return json.dumps(resList)
 
+
+def get_return_weeks(tag_id, get_time):
+    res = json.loads(get_aggregated_month(tag_id, get_time))
+    resList = []
+    for i in range(len(res['response']['results'])):
+        k = 0
+        for j in range(i+1):
+            k = k + (res['response']['results'][j][1] * 20)
+        resList.append([res['response']['results'][i][0], k])
+    return json.dumps(resList)
+
+
 # 7 time call
 def get_aggregated_week(tag_id, get_time):
     new_time = []
