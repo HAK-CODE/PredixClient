@@ -6,7 +6,6 @@ Flask==0.12.2
 Flask-Compress==1.4.0
 Flask-Cors==3.0.3
 Flask-HTTPAuth==3.2.3
-Flask-SQLAlchemy==2.2
 gevent==1.2.2
 greenlet==0.4.13
 idna==2.6
@@ -24,8 +23,8 @@ pytz==2018.3
 PyYAML==3.12
 requests==2.18.4
 six==1.11.0
-SQLAlchemy==1.1.11
 urllib3==1.22
 websocket==0.2.1
 websocket-client==0.47.0
 Werkzeug==0.12.2
+gunicorn

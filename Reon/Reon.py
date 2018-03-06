@@ -101,7 +101,6 @@ def get_aggregated_year(tag_id):
     data = json.loads(val)
     return util.parse_data_reon(data["tags"][0]["results"][0]["values"], tag_id)
 
-
 def get_aggregated_min(tag_id, get_time):
     new_time = []
     df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")

@@ -9,7 +9,7 @@ import requests
 import yaml
 from flask import Flask
 from websocket import create_connection
-
+import time
 import app
 
 # Initialize the app
@@ -47,7 +47,7 @@ def get_token(path):
     try:
         if not os.path.isfile(path):
             cache = {
-                'expires': (datetime.now() + timedelta(minutes=5)).isoformat(),
+                'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
                 'token': client_login()
             }
             with open(path, 'w') as outfile:
@@ -60,16 +60,18 @@ def get_token(path):
             expires = dateutil.parser.parse(cache['expires'])
             if expires < datetime.now():
                 cache = {
-                    'expires': (datetime.now() + timedelta(minutes=5)).isoformat(),
+                    'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
                     'token': client_login()
                 }
                 with open(path, 'w') as outfile:
                     json.dump(cache, outfile)
+                    time.sleep(2)
+                    print(cache['token'])
                 return cache['token']
             else:
                 return cache['token']
     except:
-        return parser.error("Problem opening/reading token file %s" % parsed_args.token_file)
+        print("Problem opening/reading token file ")
 
 
 def read_cred():
