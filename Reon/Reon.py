@@ -19,19 +19,7 @@ username = 'reonservicesSpark'
 passwd = 'reonservices@pRe_dix'
 cache = TTLCache(maxsize=10, ttl=120)
 # ---------------------------------------------------------------------------
-'''
-def memoize(function):
-    memo = {}
-    @wraps(function)
-    def wrapper(*args):
-        if args in memo:
-            return memo[args]
-        else:
-            rv = function(*args)
-            memo[args] = rv
-            return rv
-    return wrapper
-'''
+
 
 # 24 time call
 def get_aggregated_day(tag_id, get_time):
@@ -56,6 +44,7 @@ def get_return_days(tag_id, get_time):
     return json.dumps(resList)
 
 
+@cached(cache)
 def get_return_weeks(tag_id, get_time):
     res = json.loads(get_aggregated_month(tag_id, get_time))
     resList = []
@@ -224,7 +213,7 @@ def get_query_time_bound_data(tag_id):
     return json.dumps(qb.query_time_bound_data(tag_id, new_endtime))
 
 
-@cached(cache)
+#@cached(cache)
 def load_data(tag_id):
     alldata = json.loads(get_query_time_bound_data(tag_id))
     datelist = []
