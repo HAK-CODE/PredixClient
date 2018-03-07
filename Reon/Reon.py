@@ -1,5 +1,6 @@
 import calendar
 import datetime
+from monthdelta import monthdelta
 import json
 import time
 from cachetools import TTLCache
@@ -44,7 +45,7 @@ def get_return_days(tag_id, get_time):
     return json.dumps(resList)
 
 
-@cached(cache)
+#@cached(cache)
 def get_return_weeks(tag_id, get_time):
     res = json.loads(get_aggregated_month(tag_id, get_time))
     resList = []
@@ -57,7 +58,7 @@ def get_return_weeks(tag_id, get_time):
 
 
 # 7 time call
-@cached(cache)
+#@cached(cache)
 def get_aggregated_week(tag_id, get_time):
     new_time = []
     df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
@@ -78,7 +79,7 @@ def get_aggregated_week(tag_id, get_time):
 
 
 # 4 time call
-@cached(cache)
+#@cached(cache)
 def get_aggregated_month(tag_id, get_time):
     new_time = []
     dframe = load_data(tag_id)
@@ -105,6 +106,7 @@ def get_aggregated_month(tag_id, get_time):
         else:
             new_time.append([int(time.mktime(utc_return_nowtime(df1 - datetime.timedelta(weeks=1)).timetuple())) * 1000, 0])
 
+    print(new_time)
     return util.parse_data_reon(new_time, tag_id)
 
 
@@ -213,7 +215,7 @@ def get_query_time_bound_data(tag_id):
     return json.dumps(qb.query_time_bound_data(tag_id, new_endtime))
 
 
-#@cached(cache)
+@cached(cache)
 def load_data(tag_id):
     alldata = json.loads(get_query_time_bound_data(tag_id))
     datelist = []

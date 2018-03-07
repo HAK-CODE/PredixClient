@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta
-
+from monthdelta import monthdelta
 import dateutil.parser
 import requests
 import yaml
@@ -47,7 +47,7 @@ def get_token(path):
     try:
         if not os.path.isfile(path):
             cache = {
-                'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
+                'expires': (datetime.now() + timedelta(hours=10)).isoformat(),
                 'token': client_login()
             }
             with open(path, 'w') as outfile:
@@ -60,7 +60,7 @@ def get_token(path):
             expires = dateutil.parser.parse(cache['expires'])
             if expires < datetime.now():
                 cache = {
-                    'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
+                    'expires': (datetime.now() + timedelta(hours=10)).isoformat(),
                     'token': client_login()
                 }
                 with open(path, 'w') as outfile:
