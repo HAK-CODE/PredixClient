@@ -51,8 +51,8 @@ def get_return_days(tag_id, get_time):
     for i in range(len(res['response']['results'])):
         k = 0
         for j in range(i+1):
-            k = k + (res['response']['results'][j][1] * 20)
-        resList.append([res['response']['results'][i][0], k])
+            k = k + (res['response']['results'][j][1])
+        resList.append([res['response']['results'][i][0], k*20])
     return json.dumps(resList)
 
 
@@ -68,6 +68,7 @@ def get_return_weeks(tag_id, get_time):
 
 
 # 7 time call
+@cached(cache)
 def get_aggregated_week(tag_id, get_time):
     new_time = []
     df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
@@ -88,6 +89,7 @@ def get_aggregated_week(tag_id, get_time):
 
 
 # 4 time call
+@cached(cache)
 def get_aggregated_month(tag_id, get_time):
     new_time = []
     dframe = load_data(tag_id)
@@ -118,10 +120,26 @@ def get_aggregated_month(tag_id, get_time):
 
 
 # 12 time call
-def get_aggregated_year(tag_id):
-    val = json.dumps(qb.query_year_count(tag_id))
-    data = json.loads(val)
-    return util.parse_data_reon(data["tags"][0]["results"][0]["values"], tag_id)
+def get_aggregated_year(tag_id,get_time):
+    alldata = load_data('1_INV_1_TOTAL_ENERGY')
+    alldata.Date = pd.to_datetime(alldata['Date'])
+    years = list(set(alldata.Date.dt.year))
+
+    pars = dateutil.parser.parse(get_time).date()   
+    df1=time_tango(pars)
+    print(df1.year)
+
+    if df1.year in years:
+        val= json.dumps(qb.query_year_count(tag_id))
+        data =  json.loads(val)
+        data = data["tags"][0]["results"][0]["values"]
+        print(data)
+    else:
+        data = []
+        df1 = time_tango(str(df1.year)+"-01-01")
+        for i in range(12):
+            data.append([int(time.mktime(utc_return_nowtime(df1 + monthdelta(i+1)).timetuple())) * 1000, 0])
+    return util.parse_data_reon(data, tag_id)
 
 def get_aggregated_min(tag_id, get_time):
     new_time = []
