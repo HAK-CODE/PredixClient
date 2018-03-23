@@ -159,9 +159,9 @@ def query_zero_value(tag_id):
                         response_data.raise_for_status))
 
 
-def query_time_bound_data(tag_id, endtime):
+def query_time_bound_data(tag_id):
     response_data = requests.post(QUERY_URL,
-                                  data=bytes(json.dumps(query.time_bound_data(tag_id, endtime))),
+                                  data=bytes(json.dumps(query.time_bound_data(tag_id))),
                                   headers=connection.create_header())
     print(response_data)
     if response_data.raise_for_status() is None:

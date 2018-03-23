@@ -73,6 +73,12 @@ def get_aggregated_year():
         return reonService.get_aggregated_year(request.args.get('t'),request.args.get('time'))
     abort(make_response(jsonify(Auth_Token_Expired), 401))
 
+@app.route("/api/infinite")
+def get_infinite():
+    if reonService.verify_auth_token(request.args.get('tok')):
+        return reonService.get_infinite(request.args.get('t'),request.args.get('time'))
+    abort(make_response(jsonify(Auth_Token_Expired), 401))
+
 
 @app.route("/api/aggregated_min")
 def get_aggregated_min():

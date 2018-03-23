@@ -32,6 +32,18 @@ def parse_data_reon(data, tag=None):
         format['response']['results'] = copyData
         return json.dumps(format)
 
+def parse_data(data,tag):
+    res=[]
+    json_object={}
+    tem={}
+    for key,i in enumerate(data):
+        res.append(i)
+    json_object.update({"results": res})
+    tem.update({"response":json_object})
+    tem['response']['tag']=tag
+    return (tem)
+
+
 
 def parse_data_zeroslen(data):
     return {

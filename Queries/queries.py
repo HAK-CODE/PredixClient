@@ -44,17 +44,15 @@ def zero_count(tag_id):
     }
 
 
-def time_bound_data(tag_id, endtime):
+def time_bound_data(tag_id):
     return {
-        "cache_time": 0,
+        "start": "1y-ago",
         "tags": [
             {
                 "name": tag_id,
                 "order": "desc"
             }
-        ],
-        "start": 1516722132000,
-        "end": endtime
+        ]
 
     }
 
