@@ -16,6 +16,7 @@ import util
 from datetime import date, timedelta
 import itertools
 import pytz
+import ast
 # ----------------------------------------------
 username = 'reonservicesSpark'
 passwd = 'reonservices@pRe_dix'
@@ -27,36 +28,56 @@ cache = TTLCache(maxsize=10, ttl=120)
 def get_aggregated_day(tag_id, get_time):
 	new_time = []
 	df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
-	print(df)
 	for i in range(25):
 		new_time.append(int(time.mktime(utc_return_nowtime(df).timetuple()) * 1000))
 		df += datetime.timedelta(hours=1)
-	return util.parse_data_reon(Parallel(n_jobs=15, backend="threading")
+	dt=(util.parse_data_reon(Parallel(n_jobs=15, backend="threading")
 								(delayed(qb.query_aggregated_func)
-								 (tag_id, new_time[j], new_time[j + 1], 's', 15, 'avg') for j in range(24)))
+								 (tag_id, new_time[j], new_time[j + 1], 's', 15, 'avg') for j in range(24))))
+	dt=ast.literal_eval(dt)
+	dft=[]
+	dt1=[]
+	dt_final=[]
+	for i, v in dt.iteritems():
+		dft=v['results']
+	dft=[x for x in dft if x!=[]]
+	for i in range(0,len(dft)):
+		dt2=(dft[i][0])
+	# print(dt2)
+		dt1.append((datetime.datetime.fromtimestamp(dt2/1000)).strftime('%M'))
+		if(dt1[i]=='00'):
+			dt_final.append([dft[i][0],dft[i][1]])
+
+	return json.dumps(util.parse_data(dt_final,tag_id))
 
 
-def get_return_days(tag_id, get_time):
-	res = json.loads(get_aggregated_week(tag_id, get_time))
-	resList = []
-	for i in range(len(res['response']['results'])):
-		k = 0
-		for j in range(i+1):
-			k = k + (res['response']['results'][j][1])
-		resList.append([res['response']['results'][i][0], k*20])
-	return json.dumps(resList)
 
 
-#@cached(cache)
-def get_return_weeks(tag_id, get_time):
-	res = json.loads(get_aggregated_month(tag_id, get_time))
-	resList = []
-	for i in range(len(res['response']['results'])):
-		k = 0
-		for j in range(i+1):
-			k = k + (res['response']['results'][j][1] * 20)
-		resList.append([res['response']['results'][i][0], k])
-	return json.dumps(resList)
+
+
+
+
+# def get_return_days(tag_id, get_time):
+# 	res = json.loads(get_aggregated_week(tag_id, get_time))
+# 	resList = []
+# 	for i in range(len(res['response']['results'])):
+# 		k = 0
+# 		for j in range(i+1):
+# 			k = k + (res['response']['results'][j][1])
+# 		resList.append([res['response']['results'][i][0], k*20])
+# 	return json.dumps(resList)
+
+
+# #@cached(cache)
+# def get_return_weeks(tag_id, get_time):
+# 	res = json.loads(get_aggregated_month(tag_id, get_time))
+# 	resList = []
+# 	for i in range(len(res['response']['results'])):
+# 		k = 0
+# 		for j in range(i+1):
+# 			k = k + (res['response']['results'][j][1] * 20)
+# 		resList.append([res['response']['results'][i][0], k])
+# 	return json.dumps(resList)
 
 
 # 7 time call
@@ -65,71 +86,40 @@ def get_aggregated_week(tag_id, get_time):
 	new_time = []
 	new_list=[]
 	dframe = load_data(tag_id)
+	pars = dateutil.parser.parse(get_time).date()	
+	df=time_tango(pars)
+	week_day=df.weekday()
+	
+	for k in range(week_day):
+		df-= datetime.timedelta(days=1)
+		
+	for i in range(8):
+		try:
+			if(df.date() <= datetime.datetime.now().date()):
+				datevalues = dframe.Values[dframe.Date == df.date()].tolist()
+				datevalues = [x for x in datevalues if x != 0]
+				datevalues = datevalues[::-1]
+				#values1=datevalues[0]
+				new_list.append(datevalues[0])
+			else:
+				new_list.append(0)
+		except:
+				new_list.append(0)
+		df += datetime.timedelta(days=1)
 	df = datetime.datetime.strptime(get_time + ' 19:00:00', "%Y-%m-%d %H:%M:%S")
-	z=first_monday(df.year,df.month)
-	y = datetime.datetime(df.year, df.month, 01)
-	#df = df - datetime.timedelta(days=df.weekday())
-	monthDiff = calendar.monthrange(df.year, df.month)
-	start_list = []
-	if(df.day>=z.day):
-		df = df - datetime.timedelta(days=df.weekday())
-		for i in range(8):
-			if(df.day<=monthDiff[1]):
-				try:
-					if(df.date() <= datetime.datetime.now().date()):
-						datevalues = dframe.Values[dframe.Date == df.date()].tolist()
-						datevalues = [x for x in datevalues if x != 0]
-						datevalues = datevalues[::-1]
-						#values1=datevalues[0]
-						new_list.append(datevalues[0])
-					else:
-						new_list.append(0)
-				except:
-					new_list.append(0)
-
-				df += datetime.timedelta(days=1)
-		df = datetime.datetime.strptime(get_time + ' 19:00:00', "%Y-%m-%d %H:%M:%S")
-		df = df - datetime.timedelta(days=df.weekday())
-		save_date = df
-		for i in range(len(new_list)-1):
-			if(df.day<=monthDiff[1] and df.day >= save_date.day):
-				mid = new_list[i+1] - new_list[i]
-				try:
-					if(df.date()== datetime.datetime.now().date()):
-						print(datevalues[-1])
-						mid=datevalues[-1] - datevalues[0]
-				except:
-					mid=0
-				new_time.append([int(time.mktime(utc_return_nowtime(df).timetuple())) * 1000, mid])
-			df += datetime.timedelta(days=1) 
-	else:
-		for k in range(y.day,z.day+1):
-			if(y.day<=monthDiff[1]):
-				try:
-					if(y.date() <= datetime.datetime.now().date()):
-						datevalues = dframe.Values[dframe.Date == y.date()].tolist()
-						datevalues = [x for x in datevalues if x != 0]
-						datevalues = datevalues[::-1]
-						#values1=datevalues[0]
-						new_list.append(datevalues[0])
-					else:
-						new_list.append(0)
-				except:
-					new_list.append(0)
-				y += datetime.timedelta(days=1)
-		y = datetime.datetime(df.year, df.month, 01)
-		for i in range(len(new_list)-1):
-			if(y.day<=monthDiff[1]):
-				mid = new_list[i+1] - new_list[i] 
-				try:
-					if(y.date()== datetime.datetime.now().date()):
-						mid=datevalues[-1]-datevalues[0]
-					 # last - first
-				except:
-					mid=0
-				new_time.append([int(time.mktime(utc_return_nowtime(y).timetuple()) * 1000), mid])
-			y += datetime.timedelta(days=1) 
-
+	df = df - datetime.timedelta(days=df.weekday())
+	for i in range(len(new_list)-1):
+		mid = new_list[i+1] - new_list[i]
+		try:
+			if(df.date()== datetime.datetime.now().date()):
+				mid=datevalues[-1] - datevalues[0]
+		except:
+			mid=0
+		if(mid<0 or new_list[i]==0):
+			new_time.append(0)
+		else:
+			new_time.append(mid)
+		df += datetime.timedelta(days=1) 
 	return json.dumps(util.parse_data(new_time,tag_id))
 
 def new_week(tag_id, get_time):
@@ -171,7 +161,10 @@ def new_week(tag_id, get_time):
 						mid=datevalues[-1] - datevalues[0]
 				except:
 					mid=0
-				new_time.append([int(time.mktime(utc_return_nowtime(df).timetuple())) * 1000, mid])
+				if(mid < 0 or new_list[i]==0):
+					new_time.append([int(time.mktime(utc_return_nowtime(df).timetuple())) * 1000, 0])
+				else:
+					new_time.append([int(time.mktime(utc_return_nowtime(df).timetuple())) * 1000, mid])
 			df += datetime.timedelta(days=1) 
 	else:
 		for k in range(y.day,z.day+1):
@@ -198,7 +191,10 @@ def new_week(tag_id, get_time):
 					 # last - first
 				except:
 					mid=0
-				new_time.append([int(time.mktime(utc_return_nowtime(y).timetuple()) * 1000), mid])
+				if(mid<0 or new_list[i]==0):
+					new_time.append([int(time.mktime(utc_return_nowtime(y).timetuple()) * 1000), 0])
+				else:
+					new_time.append([int(time.mktime(utc_return_nowtime(y).timetuple()) * 1000), mid])
 			y += datetime.timedelta(days=1) 
 
 	return json.dumps(new_time)
@@ -362,8 +358,9 @@ def time_tango_year(date):
 
 
 def get_query_time_bound_data(tag_id):
-	# new_endtime = (int(time.mktime(utc_return(datetime.datetime.now()).timetuple())) * 1000)
-	return json.dumps(qb.query_time_bound_data(tag_id))
+	endtime=datetime.datetime.now()
+	new_endtime=(int(time.mktime(utc_return(endtime).timetuple())) * 1000)
+	return json.dumps(qb.query_time_bound_data(tag_id,new_endtime))
 
 def last_day_of_month(any_day):
     next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
@@ -388,14 +385,18 @@ def allmondays(year,month):
 @cached(cache)
 def load_data(tag_id):
 	alldata = json.loads(get_query_time_bound_data(tag_id))
+	new_time = []
 	datelist = []
 	valuelist = []
 	for i in range(len(alldata['tags'][0]['results'][0]['values'])):
 		datelist.append(str(datetime.datetime.fromtimestamp(((alldata['tags'][0]['results'][0]['values'][i][0])+18000000)/1000).strftime('%Y-%m-%d')))
 		valuelist.append(alldata['tags'][0]['results'][0]['values'][i][1])
 
-	dframe = pd.DataFrame(columns=['Date', 'Values'])
+	columns = ['Date', 'Values']
+	dframe = pd.DataFrame(columns = columns)
 	dframe['Date'] = datelist
-	dframe['Date'] = pd.to_datetime(dframe['Date']).dt.date
-	dframe['Values'] = valuelist
+	dframe['Date'] = pd.to_datetime(dframe['Date'])
+	dframe['Values'] = valuelist 
+	dframe['Date'] = pd.to_datetime(dframe['Date'])
+	dframe['Date'] = dframe['Date'].dt.date	
 	return dframe

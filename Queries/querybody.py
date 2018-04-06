@@ -159,12 +159,10 @@ def query_zero_value(tag_id):
                         response_data.raise_for_status))
 
 
-def query_time_bound_data(tag_id):
-    response_data = requests.post(QUERY_URL,
-                                  data=bytes(json.dumps(query.time_bound_data(tag_id))),
-                                  headers=connection.create_header())
-    print(response_data)
-    if response_data.raise_for_status() is None:
-        return response_data.json()
-    abort(make_response(jsonify({'response': {'message': ' Forwarding data from predix response.'}}),
-                        response_data.raise_for_status))
+def query_time_bound_data(tag_id,endtime):
+    ret_data = requests.post(QUERY_URL,
+                             data=bytes(json.dumps(query.time_bound_data(tag_id,endtime))),
+                             headers=connection.create_header())
+    if ret_data.raise_for_status() is None:
+        return ret_data.json()
+    abort(make_response(jsonify({'response': {'message': ' Forwarding data from predix response.'}}), ret_data.raise_for_status))
