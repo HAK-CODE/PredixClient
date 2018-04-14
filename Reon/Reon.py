@@ -38,8 +38,7 @@ def get_aggregated_day(tag_id, get_time):
 	dft=[]
 	dt1=[]
 	dt_final=[]
-	for i, v in dt.iteritems():
-		dft=v['results']
+	dft = dt['response']['results']
 	dft=[x for x in dft if x!=[]]
 	for i in range(0,len(dft)):
 		dt2=(dft[i][0])

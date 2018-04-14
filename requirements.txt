@@ -28,3 +28,4 @@ websocket==0.2.1
 websocket-client==0.47.0
 Werkzeug==0.12.2
 waitress
+ast
