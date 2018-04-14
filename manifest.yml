@@ -3,4 +3,4 @@ applications:
 - name: Reon-client
   memory: 512MB
   buildpack: https://github.com/cloudfoundry/python-buildpack.git
-  command:  gunicorn app:app
+  command:  python app.py
