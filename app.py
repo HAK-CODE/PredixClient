@@ -3,6 +3,7 @@ import sys
 from monthdelta import monthdelta
 from flask import Flask, request, abort, jsonify, make_response
 from flask_cors import CORS
+from waitress import serve
 
 from ResponseDict import *
 
@@ -145,4 +146,5 @@ def deleteTags():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=port)
+    # app.run(host='0.0.0.0', port=port)
+    serve(app, host='0.0.0.0', port=port)
