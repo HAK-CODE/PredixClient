@@ -11,10 +11,11 @@ from flask import Flask
 from websocket import create_connection
 import time
 import app
+from threading import Lock
 
 # Initialize the app
 app = Flask(__name__, instance_relative_config=True)
-
+lock = Lock()
 
 def client_login():
     client = read_cred()['env']['PREDIX_APP_CLIENT_ID']
@@ -45,31 +46,32 @@ def get_credentials(path):
 
 def get_token(path):
     try:
-        if not os.path.isfile(path):
-            cache = {
-                'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
-                'token': client_login()
-            }
-            with open(path, 'w') as outfile:
-                json.dump(cache, outfile)
-            return cache['token']
-        else:
-            read_token = open(path)
-            cache = json.load(read_token)
-            read_token.close()
-            expires = dateutil.parser.parse(cache['expires'])
-            if expires < datetime.now():
+        with lock:
+            if not os.path.isfile(path):
                 cache = {
                     'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
                     'token': client_login()
                 }
                 with open(path, 'w') as outfile:
                     json.dump(cache, outfile)
-                    time.sleep(2)
-                    print(cache['token'])
                 return cache['token']
             else:
-                return cache['token']
+                read_token = open(path)
+                cache = json.load(read_token)
+                read_token.close()
+                expires = dateutil.parser.parse(cache['expires'])
+                if expires < datetime.now():
+                    cache = {
+                        'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
+                        'token': client_login()
+                    }
+                    with open(path, 'w') as outfile:
+                        json.dump(cache, outfile)
+                        time.sleep(2)
+                        print(cache['token'])
+                    return cache['token']
+                else:
+                    return cache['token']
     except:
         print("Problem opening/reading token file ")
 
