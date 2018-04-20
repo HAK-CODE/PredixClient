@@ -25,31 +25,35 @@ cache = TTLCache(maxsize=10, ttl=120)
 
 
 # 24 time call
+# def get_aggregated_day(tag_id, get_time):
+# 	new_time = []
+# 	df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
+# 	for i in range(25):
+# 		new_time.append(int(time.mktime(utc_return_nowtime(df).timetuple()) * 1000))
+# 		df += datetime.timedelta(hours=1)
+# 	dt=(util.parse_data_reon(Parallel(n_jobs=15, backend="threading")
+# 								(delayed(qb.query_aggregated_func)
+# 								 (tag_id, new_time[j], new_time[j + 1], 's', 15, 'avg') for j in range(24))))
+# 	dt=ast.literal_eval(dt)
+# 	dft=[]
+# 	dt1=[]
+# 	dt_final=[]
+# 	dft = dt['response']['results']
+# 	dft=[x for x in dft if x!=[]]
+# 	for i in range(0,len(dft)):
+# 		dt2=(dft[i][0])
+# 	# print(dt2)
+# 		dt1.append((datetime.datetime.fromtimestamp(dt2/1000)).strftime('%M'))
+# 		if(dt1[i]=='00'):
+# 			dt_final.append([dft[i][0],dft[i][1]])
+
+# 	return json.dumps(util.parse_data(dt_final,tag_id))
+
 def get_aggregated_day(tag_id, get_time):
-	new_time = []
 	df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
-	for i in range(25):
-		new_time.append(int(time.mktime(utc_return_nowtime(df).timetuple()) * 1000))
-		df += datetime.timedelta(hours=1)
-	dt=(util.parse_data_reon(Parallel(n_jobs=15, backend="threading")
-								(delayed(qb.query_aggregated_func)
-								 (tag_id, new_time[j], new_time[j + 1], 's', 15, 'avg') for j in range(24))))
-	dt=ast.literal_eval(dt)
-	dft=[]
-	dt1=[]
-	dt_final=[]
-	dft = dt['response']['results']
-	dft=[x for x in dft if x!=[]]
-	for i in range(0,len(dft)):
-		dt2=(dft[i][0])
-	# print(dt2)
-		dt1.append((datetime.datetime.fromtimestamp(dt2/1000)).strftime('%M'))
-		if(dt1[i]=='00'):
-			dt_final.append([dft[i][0],dft[i][1]])
-
-	return json.dumps(util.parse_data(dt_final,tag_id))
-
-
+	time_list=(int(time.mktime(utc_return_nowtime(df).timetuple()) * 1000))
+	end_time=time_list+86340000
+	return json.dumps(util.parse_data_latest(qb.query_real_dayvalue(tag_id,time_list,end_time)))
 
 
 
@@ -362,24 +366,24 @@ def get_query_time_bound_data(tag_id):
 	return json.dumps(qb.query_time_bound_data(tag_id,new_endtime))
 
 def last_day_of_month(any_day):
-    next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-    return next_month - datetime.timedelta(days=next_month.day)
+	next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+	return next_month - datetime.timedelta(days=next_month.day)
 
 def first_monday(year,month):
 	c = calendar.Calendar(firstweekday=calendar.SUNDAY)
 	year = year; month = month
 	monthcal = c.monthdatescalendar(year,month)
 	first_monday = [day for week in monthcal for day in week if \
-	                day.weekday() == calendar.MONDAY and \
-	                day.month == month][0]
+					day.weekday() == calendar.MONDAY and \
+					day.month == month][0]
 	return(first_monday)
 
 def allmondays(year,month):
    d = date(year, month, 1)                    
    d += timedelta(days = 7 - d.weekday())  
    while d.month == month:
-      yield d
-      d += timedelta(days = 7)
+	  yield d
+	  d += timedelta(days = 7)
 
 @cached(cache)
 def load_data(tag_id):

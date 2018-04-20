@@ -49,7 +49,7 @@ def get_token(path):
         with lock:
             if not os.path.isfile(path):
                 cache = {
-                    'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
+                    'expires': (datetime.now() + timedelta(hours=10)).isoformat(),
                     'token': client_login()
                 }
                 with open(path, 'w') as outfile:
@@ -62,7 +62,7 @@ def get_token(path):
                 expires = dateutil.parser.parse(cache['expires'])
                 if expires < datetime.now():
                     cache = {
-                        'expires': (datetime.now() + timedelta(minutes=3)).isoformat(),
+                        'expires': (datetime.now() + timedelta(hours=10)).isoformat(),
                         'token': client_login()
                     }
                     with open(path, 'w') as outfile:

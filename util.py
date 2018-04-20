@@ -21,7 +21,8 @@ def parse_data_reon(data, tag=None):
                        if len(i['tags'][0]['results'][0]['values']) != 0 else [])
         return json.dumps(format)
     elif inspect.stack()[1][3] == 'get_aggregated_month' or \
-            inspect.stack()[1][3] == 'get_aggregated_week':
+            inspect.stack()[1][3] == 'get_aggregated_week' or \
+            inspect.stack()[1][3] == 'get_aggregated':
         format['response']['tag'] = tag
         format['response']['results'] = data
         return json.dumps(format)
@@ -43,7 +44,17 @@ def parse_data(data,tag):
     tem['response']['tag']=tag
     return (tem)
 
+def get_values(data):
+    return data["tags"][0].get('results')[0].get('values')
 
+def parse_data_latest(data):
+    json_object={}
+    tem={}
+    json_object.update({'tag' : data["tags"][0].get('name')})
+    json_object.update({'results': get_values(data)})
+    tem.update({"response":json_object})
+    return (tem)
+    
 
 def parse_data_zeroslen(data):
     return {
