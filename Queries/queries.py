@@ -77,8 +77,9 @@ def real_dayvalue(tag_id,time,end_time):
         "end":end_time,
         "tags": [
             {
+        "filters": {"measurements": {"values": 4294967295, "condition": "ne"}},
         "name": tag_id,
-        "order": "desc",
+        "order": "asc",
         }
     ]
     }
