@@ -55,7 +55,11 @@ def get_aggregated_day(tag_id, get_time):
 	end_time=time_list+86340000
 	return json.dumps(util.parse_data_latest(qb.query_real_dayvalue(tag_id,time_list,end_time)))
 
-
+def get_aggregated_day_all(tag_id, get_time):
+	df = datetime.datetime.strptime(get_time + ' 00:00:00', "%Y-%m-%d %H:%M:%S")
+	time_list=(int(time.mktime(utc_return_nowtime(df).timetuple()) * 1000))
+	end_time=time_list+86340000
+	return json.dumps(qb.query_real_dayvalue_all(tag_id,time_list,end_time))
 
 
 
