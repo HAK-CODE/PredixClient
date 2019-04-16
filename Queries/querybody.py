@@ -175,3 +175,12 @@ def query_real_dayvalue(tag_id,time,end_time):
         return response_data.json()
     abort(make_response(jsonify({'response': {'message': ' Forwarding data from predix response.'}}),
                         response_data.raise_for_status))
+
+def query_real_dayvalue_all(tag_id,time,end_time):
+    response_data = requests.post(QUERY_URL,
+                                  data=json.dumps(query.real_dayvalue_all(tag_id,time,end_time)),
+                                  headers=connection.create_header())
+    if response_data.raise_for_status() is None:
+        return response_data.json()
+    abort(make_response(jsonify({'response': {'message': ' Forwarding data from predix response.'}}),
+                        response_data.raise_for_status))

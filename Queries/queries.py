@@ -83,3 +83,17 @@ def real_dayvalue(tag_id,time,end_time):
         }
     ]
     }
+
+def real_dayvalue_all(tag_id,time,end_time):
+	tag_id = tag_id.split(',')
+	return {
+        "start": time,
+        "end":end_time,
+        "tags": [
+            {
+        #"filters": {"measurements": {"values": 4294967.295, "condition": "ne"}},
+        "name": tag_id,
+        "order": "asc",
+        }
+    ]
+    }
