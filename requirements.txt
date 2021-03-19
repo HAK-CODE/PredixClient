@@ -10,7 +10,7 @@ gevent==1.2.2
 greenlet==0.4.13
 idna==2.6
 itsdangerous==0.24
-Jinja2==2.9.6
+Jinja2==2.11.3
 joblib==0.11
 jsonify==0.5
 MarkupSafe==1.0
