@@ -15,7 +15,7 @@ joblib==0.11
 jsonify==0.5
 MarkupSafe==1.0
 MonthDelta==0.9.1
-numpy==1.14.1
+numpy==1.22.0
 pandas==0.22.0
 passlib==1.7.1
 python-dateutil==2.6.1
